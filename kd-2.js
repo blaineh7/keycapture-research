@@ -8,6 +8,12 @@
 		mt_answers[$(e).attr(mt_qId)] = {questionId:$(e).attr(mt_qId), answer:"", kd:""};
 	}
 	
+	function Message(eventMessage)
+	{
+		this.Key = eventMessage.target + '@' + eventMessage.pageName + '_' + eventMessage.id ;
+		this.Item =eventMessage;
+	}
+	
 	function EventMessage(id, target, eventType, startTimestamp, pageName) {
 	this.id = id;
 	this.startingEventType = eventType;
@@ -15,7 +21,7 @@
 	this.startTimestamp = startTimestamp;
 	this.endTimestamp = "";
 	this.pageName = pageName;
-	this.Target = target;
+	this.target = target;
 	this.keyEvents = [];
     this.addKeyEvent = function (keyEvent) {
     this.keyEvents.push(keyEvent);};
@@ -54,21 +60,22 @@
 				try{
 			eventMessage.endingEventType = event.type;
 			eventMessage.endTimestamp = event.timeStamp;
-			var jsonString = JSON.stringify(eventMessage);
+			var message = new Message(eventMessage);
+			var jsonString = JSON.stringify(message);
 		    console.log(jsonString);
 			$.ajax({
-           url: 'MyController/MyAction',
-           contentType: "application/json; charset=utf-8",
-           type: "POST",
-           data: jsonString,
-           dataType: "json",
-           success: function (data) {
-             //...
-           },
-           error: function () {
-             //...
-           }
-       });
+           url: 'https://hsc0tewt6a.execute-api.us-west-2.amazonaws.com/stage/PersistKeyCaptureLambda',
+           contentType: "application/json",
+           type: "PUT",
+           data: jsonString,
+           dataType: "json",
+                success: function (data, textStatus, xhr) {
+                    console.log(data);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                }
+       });
 	   }catch(err){
 	   }
 	}
